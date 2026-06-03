@@ -6,6 +6,7 @@ type AuthProfile = {
   firstName: string;
   lastName: string;
   email: string;
+  premium: boolean;
 };
 
 type AuthState = {
@@ -19,6 +20,7 @@ const defaultProfile: AuthProfile = {
   firstName: "Alice",
   lastName: "Martin",
   email: "alice.allure@gmail.com",
+  premium: false,
 };
 
 export function useAuth() {
@@ -49,6 +51,7 @@ export function useAuth() {
             firstName: parsed.profile.firstName,
             lastName: parsed.profile.lastName,
             email: parsed.profile.email,
+            premium: Boolean(parsed.profile.premium),
           },
         });
       }
@@ -84,6 +87,16 @@ export function useAuth() {
     });
   }
 
+  function activatePremium() {
+    setState((prev) => ({
+      ...prev,
+      profile: {
+        ...prev.profile,
+        premium: true,
+      },
+    }));
+  }
+
   return {
     ready,
     authenticated: state.authenticated,
@@ -91,5 +104,6 @@ export function useAuth() {
     login,
     logout,
     register,
+    activatePremium,
   };
 }

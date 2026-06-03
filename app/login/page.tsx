@@ -7,6 +7,7 @@ import { useState } from "react";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/lib/useAuth";
 import {
+  Crown,
   Bell,
   ChevronRight,
   Eye,
@@ -20,6 +21,12 @@ import {
 } from "lucide-react";
 
 const profileSections = [
+  {
+    title: "Abonnement styliste",
+    description: "Souscrivez au service premium et profitez d'un accompagnement.",
+    icon: Crown,
+    href: "/styliste",
+  },
   {
     title: "Parametres",
     description: "Informations personnelles, adresse et preferences.",
@@ -149,11 +156,13 @@ function ProfileView({
   firstName,
   lastName,
   email,
+  premium,
   onLogout,
 }: {
   firstName: string;
   lastName: string;
   email: string;
+  premium: boolean;
   onLogout: () => void;
 }) {
   const router = useRouter();
@@ -187,6 +196,17 @@ function ProfileView({
               {firstName} {lastName}
             </h2>
             <p className="truncate text-sm text-[#6f6250]">{email}</p>
+            <div className="mt-2">
+              <span
+                className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${
+                  premium
+                    ? "bg-[#1b1712] text-[#f1dfb2]"
+                    : "bg-[#efe5cf] text-[#8f7244]"
+                }`}
+              >
+                {premium ? "Premium styliste" : "Compte standard"}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -194,14 +214,16 @@ function ProfileView({
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-[#1d1813]">
-                Profil verifie
+                {premium ? "Abonnement premium actif" : "Profil verifie"}
               </p>
               <p className="text-sm text-[#6f6250]">
-                Compte securise et synchronise avec votre avatar.
+                {premium
+                  ? "Vous beneficiez d'un accompagnement styliste personnalise."
+                  : "Compte securise et synchronise avec votre avatar."}
               </p>
             </div>
             <span className="rounded-full bg-[#1b1712] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#f1dfb2]">
-              Actif
+              {premium ? "Premium" : "Actif"}
             </span>
           </div>
         </div>
@@ -318,6 +340,7 @@ export default function LoginPage() {
             firstName={profile.firstName}
             lastName={profile.lastName}
             email={profile.email}
+            premium={profile.premium}
             onLogout={logout}
           />
         ) : (

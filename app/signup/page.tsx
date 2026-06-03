@@ -99,6 +99,7 @@ export default function SignupPage() {
                   firstName: firstNameInput?.value || "Alice",
                   lastName: lastNameInput?.value || "Martin",
                   email: emailInput?.value || "alice.allure@gmail.com",
+                  premium: false,
                 });
                 router.push("/login");
                 router.refresh();

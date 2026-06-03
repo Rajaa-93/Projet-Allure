@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import BottomNav from "@/components/BottomNav";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { getProductById } from "@/lib/products";
 import { useCart } from "@/lib/useCart";
 
 export default function PanierPage() {
+  const router = useRouter();
+  const [isNavigatingToPayment, startTransition] = useTransition();
   const { ready, items, itemCount, removeItem, updateQuantity } = useCart();
   const cartLines = items
     .map((item) => {
@@ -35,10 +39,10 @@ export default function PanierPage() {
           <h1 className="text-xl font-semibold text-[#1b1712]">Panier</h1>
           <p className="text-sm text-[#7a6d5b]">
             {itemCount > 0
-              ? `${itemCount} article${itemCount > 1 ? "s" : ""} pret${
+              ? `${itemCount} article${itemCount > 1 ? "s" : ""} prêt${
                   itemCount > 1 ? "s" : ""
-                } a etre commandes.`
-              : "Ajoutez vos pieces preferees depuis la fiche produit."}
+                } à être commandé${itemCount > 1 ? "s" : ""}.`
+              : "Ajoutez vos pièces préférées depuis la fiche produit."}
           </p>
         </div>
 
@@ -94,7 +98,7 @@ export default function PanierPage() {
                           )
                         }
                         className="flex h-9 w-9 items-center justify-center rounded-full border border-[#d8cab2] bg-white text-[#2b241d]"
-                        aria-label="Diminuer la quantite"
+                        aria-label="Diminuer la quantité"
                       >
                         <Minus size={15} />
                       </button>
@@ -111,7 +115,7 @@ export default function PanierPage() {
                           )
                         }
                         className="flex h-9 w-9 items-center justify-center rounded-full border border-[#d8cab2] bg-white text-[#2b241d]"
-                        aria-label="Augmenter la quantite"
+                        aria-label="Augmenter la quantité"
                       >
                         <Plus size={15} />
                       </button>
@@ -145,9 +149,17 @@ export default function PanierPage() {
               </div>
               <button
                 type="button"
-                className="mt-4 w-full rounded-full bg-[#1b1712] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#f6f1e7]"
+                onClick={() =>
+                  startTransition(() => {
+                    router.push("/paiement");
+                  })
+                }
+                disabled={isNavigatingToPayment}
+                className="mt-4 w-full rounded-full bg-[#1b1712] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#f6f1e7] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Passer la commande
+                {isNavigatingToPayment
+                  ? "Redirection vers le paiement..."
+                  : "Passer la commande"}
               </button>
             </section>
           </>

@@ -99,6 +99,10 @@ export function useCart() {
     return items.some((item) => item.productId === productId);
   }
 
+  function clearCart() {
+    setItems([]);
+  }
+
   return {
     ready,
     items,
@@ -107,5 +111,6 @@ export function useCart() {
     removeItem,
     updateQuantity,
     hasProduct,
+    clearCart,
   };
 }

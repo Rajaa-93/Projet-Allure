@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Projet Allure
 
-## Getting Started
+Application Next.js 16 orientée mobile pour explorer un catalogue mode, gérer un panier et finaliser une commande avec Stripe Checkout Embedded en mode test.
 
-First, run the development server:
+## Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Variables d'environnement
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Créez votre fichier local à partir de l'exemple fourni :
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cp .env.local.example .env.local
+```
 
-## Learn More
+Renseignez ensuite vos clés Stripe de test dans `.env.local` :
 
-To learn more about Next.js, take a look at the following resources:
+```env
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_a_remplacer
+STRIPE_SECRET_KEY=sk_test_a_remplacer
+NEXT_PUBLIC_APP_URL=http://127.0.0.1:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` : clé publique Stripe utilisée côté client.
+- `STRIPE_SECRET_KEY` : clé secrète Stripe utilisée uniquement côté serveur.
+- `NEXT_PUBLIC_APP_URL` : URL locale de l'application pour les retours Stripe.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`/.env.local` reste ignoré par Git.
 
-## Deploy on Vercel
+## Lancer le projet
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run dev -- --hostname 127.0.0.1
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Ouvrez ensuite [http://127.0.0.1:3000](http://127.0.0.1:3000).
+
+## Paiement Stripe en mode test
+
+Le bouton `Passer la commande` du panier ouvre une page `/paiement` qui initialise Stripe Checkout Embedded.
+
+Carte de test recommandée :
+
+- numéro : `4242 4242 4242 4242`
+- date : une date future, par exemple `12/34`
+- CVC : `123`
+- code postal : n'importe quelle valeur valide
+
+Cette intégration fonctionne uniquement en mode test et ne débite aucun argent réel.
+
+## Vérifications utiles
+
+```bash
+npm run lint
+npm run build
+```
