@@ -22,7 +22,7 @@ export const stylists: StylistProfile[] = [
     title: "Styliste Casual Chic",
     bio: "Je construis des silhouettes douces, elegantes et faciles a vivre. J'aime melanger de belles bases chic avec des pieces plus simples pour que mes clientes se sentent tout de suite mises en valeur.",
     styleTags: ["Casual", "Chic", "Minimaliste"],
-    avatar: "/catalogue-sia/cardigan-vert-zara/05755903933-e2.jpg",
+    avatar: "/stylists/lea-moreau.png",
     heroImage: "/catalogue-sia/robe-hm/d5aa2b50cf5a7e871f9e2e43acba6114c0544471.jpg.avif",
     relikedPeople: ["Camille", "Sarah", "Nina", "Leonie"],
     posts: [
@@ -58,7 +58,7 @@ export const stylists: StylistProfile[] = [
     title: "Styliste Streetwear Moderne",
     bio: "Je travaille des looks urbains, nets et actuels, avec des proportions fortes et beaucoup d'assurance. Mon but, c'est de garder l'energie streetwear tout en donnant une vraie allure mode.",
     styleTags: ["Streetwear", "Casual", "Sport"],
-    avatar: "/catalogue-sia/ensemble-jean-zara/07484045407-e1.jpg",
+    avatar: "/stylists/ines-belkacem.png",
     heroImage: "/catalogue-sia/ensemble-jean-zara/01416035407-a2.jpg",
     relikedPeople: ["Aya", "Mina", "Lola", "Jade"],
     posts: [
@@ -94,7 +94,7 @@ export const stylists: StylistProfile[] = [
     title: "Styliste Statement & Evenement",
     bio: "Je cree des looks qui marquent les esprits pour les diners, les sorties et tous les moments ou l'on veut se sentir inoubliable. J'aime quand une tenue raconte quelque chose des la premiere seconde.",
     styleTags: ["Chic", "Statement", "Soiree"],
-    avatar: "/catalogue-sia/blazer-marron-hm/cc8eed826b30240467d641e4b4e90e6530ec90a4.jpg.avif",
+    avatar: "/stylists/zoe-lambert.png",
     heroImage: "/catalogue-sia/blazer-leopard-hm/a8f0ffd902fee566d5a2c5079a29e3e641828945.jpg.avif",
     relikedPeople: ["Clara", "Emma", "Sofia", "Yasmine"],
     posts: [

@@ -1,9 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import AllureLogo from "@/components/AllureLogo";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/lib/useAuth";
 import {
@@ -62,7 +62,14 @@ function AuthenticationView({
     <section className="relative z-10 flex min-h-[760px] flex-col">
       <div className="pt-6 text-center">
         <div className="mx-auto mb-3 flex justify-center">
-          <AllureLogo className="relative h-36 w-56" priority />
+          <Image
+            src="/allure-login-logo.png"
+            alt="Logo Allure"
+            width={280}
+            height={220}
+            className="h-auto w-[220px]"
+            priority
+          />
         </div>
 
         <h1
@@ -163,7 +170,12 @@ function ProfileView({
   return (
     <section className="relative z-10">
       <div className="mb-5">
-        <AllureLogo className="relative mb-2 h-16 w-32" priority />
+        <p
+          className="text-[15px] tracking-[0.18em] text-[#b79a63]"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          Allure
+        </p>
         <h1 className="text-xl font-semibold text-[#1b1712]">Profil</h1>
         <p className="text-sm text-[#7a6d5b]">
           Votre espace personnel, vos reglages et votre securite.
@@ -227,108 +239,76 @@ function ProfileView({
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="text-[0.95rem] font-semibold text-[#1d1813]">
-                  {section.title}
-                </p>
-                <p className="text-[0.84rem] leading-5 text-[#6f6250]">
-                  {section.description}
-                </p>
+                <p className="text-sm font-semibold text-[#1d1813]">{section.title}</p>
+                <p className="text-sm text-[#6f6250]">{section.description}</p>
               </div>
 
-              <ChevronRight size={18} className="text-[#8f816b]" />
+              <ChevronRight size={18} className="text-[#9b8b74]" />
             </div>
           );
 
-          return section.href ? (
-            <Link key={section.title} href={section.href}>
-              {content}
-            </Link>
-          ) : (
-            <div key={section.title}>{content}</div>
-          );
+          if (section.href) {
+            return (
+              <Link key={section.title} href={section.href}>
+                {content}
+              </Link>
+            );
+          }
+
+          return <div key={section.title}>{content}</div>;
         })}
       </section>
 
-      <section className="mt-4 rounded-[28px] border border-[#d7cab2] bg-[#fbf8f1] p-5 shadow-[0_12px_28px_rgba(55,43,28,0.08)]">
-        <div className="mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#9a804b]">
-            Authentification
-          </p>
-          <h2 className="mt-1 text-[1.05rem] font-semibold text-[#1d1813]">
-            Connexion et securite
-          </h2>
-          <p className="text-sm text-[#6f6250]">
-            Gerer votre mot de passe, votre session et l&apos;acces au compte.
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center gap-3 rounded-[20px] border border-[#e2d6c3] bg-[#fffaf2] px-4 py-3">
-            <LockKeyhole size={16} className="text-[#8f7244]" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-[#1d1813]">Mot de passe</p>
-              <p className="text-[0.82rem] text-[#6f6250]">
-                Derniere mise a jour il y a 21 jours
-              </p>
-            </div>
-            <button className="text-[0.82rem] font-semibold text-[#8f7244]">
-              Modifier
-            </button>
+      <section className="mt-4 rounded-[24px] border border-[#d8cab2] bg-[#fbf8f1] p-4 shadow-[0_10px_22px_rgba(55,43,28,0.06)]">
+        <div className="mb-3 flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1b1712] text-[#f1dfb2]">
+            <Shield size={18} />
           </div>
-
-          <div className="flex items-center gap-3 rounded-[20px] border border-[#e2d6c3] bg-[#fffaf2] px-4 py-3">
-            <UserRound size={16} className="text-[#8f7244]" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-[#1d1813]">
-                Authentification
-              </p>
-              <p className="text-[0.82rem] text-[#6f6250]">
-                Connexion biometrique et verification en 2 etapes
-              </p>
-            </div>
-            <button className="text-[0.82rem] font-semibold text-[#8f7244]">
-              Configurer
-            </button>
+          <div>
+            <p className="text-sm font-semibold text-[#1d1813]">Connexion et sécurité</p>
+            <p className="text-sm text-[#6f6250]">
+              Gérez l&apos;accès à votre compte, votre mot de passe et vos sessions.
+            </p>
           </div>
         </div>
 
         <button
           type="button"
-          onClick={() => {
-            onLogout();
-            router.push("/login");
-          }}
-          className="mt-5 flex w-full items-center justify-center rounded-full border border-[#2b2118] bg-[#1b1712] px-4 py-3 text-sm font-semibold text-[#f6f1e7]"
+          onClick={() => router.push("/signup")}
+          className="w-full rounded-full border border-[#d8cab2] bg-white px-4 py-3 text-sm font-semibold text-[#1d1813]"
         >
-          <LogOut size={16} className="mr-2" />
-          Deconnexion
+          Gérer l&apos;authentification
         </button>
       </section>
+
+      <button
+        type="button"
+        onClick={onLogout}
+        className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-[#1b1712] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#f6f1e7] shadow-[0_12px_24px_rgba(22,17,12,0.24)]"
+      >
+        <LogOut size={16} />
+        Déconnexion
+      </button>
     </section>
   );
 }
 
 export default function LoginPage() {
-  const { ready, authenticated, profile, login, logout } = useAuth();
+  const { ready, user, login, logout } = useAuth();
 
   return (
     <>
-      <main className="relative min-h-full overflow-hidden bg-[#f6f1e7] px-4 pb-28 pt-12">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-[-18%] top-12 h-40 w-[130%] rotate-[-10deg] bg-[radial-gradient(ellipse_at_center,rgba(201,174,114,0.2),transparent_60%)]" />
-          <div className="absolute right-[-15%] top-48 h-44 w-44 rounded-full bg-[radial-gradient(circle,rgba(214,190,138,0.18),transparent_65%)]" />
-        </div>
-
+      <main className="px-4 pb-28 pt-14">
         {!ready ? (
-          <div className="relative z-10 rounded-[24px] border border-[#d8cab2] bg-[#fbf8f1] p-4 text-sm text-[#6a5c49]">
-            Chargement du compte...
+          <div className="rounded-[24px] border border-[#d8cab2] bg-[#fbf8f1] p-4 text-sm text-[#6f6250]">
+            Chargement du profil...
           </div>
-        ) : authenticated ? (
+        ) : user ? (
           <ProfileView
-            firstName={profile.firstName}
-            lastName={profile.lastName}
-            email={profile.email}
-            premium={profile.premium}
+            firstName={user.firstName}
+            lastName={user.lastName}
+            email={user.email}
+            premium={user.premium}
             onLogout={logout}
           />
         ) : (
@@ -336,7 +316,7 @@ export default function LoginPage() {
         )}
       </main>
 
-      {authenticated ? <BottomNav /> : null}
+      {ready && user ? <BottomNav /> : null}
     </>
   );
 }

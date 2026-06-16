@@ -35,6 +35,14 @@ export type Product = {
   images: string[];
 };
 
+export type ProductVariant = {
+  name: string;
+  kind: "Couleur" | "Motif";
+  value: string;
+  available: boolean;
+  priceDelta?: number;
+};
+
 export const brands: Brand[] = [
   { id: "zara", label: "ZARA", logo: "/catalogue-sia/logos/zara.png" },
   { id: "hm", label: "H&M", logo: "/catalogue-sia/logos/hm.png" },

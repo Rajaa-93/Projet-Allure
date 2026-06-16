@@ -1,30 +1,28 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import AllureLogo from "@/components/AllureLogo";
 import { CreditCard, Lock } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useCart } from "@/lib/useCart";
-import { getCartProductById, getCartProductPrice } from "@/lib/cartProducts";
+import { getProductById } from "@/lib/products";
 
 type CheckoutCartItemInput = {
   productId: number;
   size: string;
   quantity: number;
-  variantName?: string;
 };
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = publishableKey ? loadStripe(publishableKey) : Promise.resolve(null);
-
-type CheckoutCreationState = {
-  clientSecret: string | null;
-  error: string;
-  loading: boolean;
-};
+const StripeEmbeddedShell = dynamic(() => import("@/components/StripeEmbeddedShell"), {
+  ssr: false,
+  loading: () => (
+    <div className="rounded-[24px] border border-[#d8cab2] bg-[#fffaf2] p-5 text-sm text-[#6f6250]">
+      Initialisation du paiement sécurisé...
+    </div>
+  ),
+});
 
 function MockCheckoutForm({
   items,
@@ -34,11 +32,8 @@ function MockCheckoutForm({
   const router = useRouter();
   const [isSubmitting, startTransition] = useTransition();
   const total = items.reduce((sum, item) => {
-    const product = getCartProductById(item.productId);
-    return (
-      sum +
-      (product ? getCartProductPrice(product, item.variantName) * item.quantity : 0)
-    );
+    const product = getProductById(item.productId);
+    return sum + (product ? product.price * item.quantity : 0);
   }, 0);
 
   return (
@@ -138,97 +133,23 @@ function MockCheckoutForm({
   );
 }
 
-function EmbeddedCheckoutShell({ items }: { items: CheckoutCartItemInput[] }) {
-  const [state, setState] = useState<CheckoutCreationState>({
-    clientSecret: null,
-    error: "",
-    loading: true,
-  });
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function createCheckoutSession() {
-      setState({ clientSecret: null, error: "", loading: true });
-
-      try {
-        const response = await fetch("/api/checkout/session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ items }),
-        });
-
-        const data = (await response.json()) as {
-          clientSecret?: string;
-          error?: string;
-        };
-
-        if (!response.ok || !data.clientSecret) {
-          throw new Error(
-            data.error ?? "Impossible d'initialiser la session de paiement."
-          );
-        }
-
-        if (!cancelled) {
-          setState({ clientSecret: data.clientSecret, error: "", loading: false });
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setState({
-            clientSecret: null,
-            error:
-              error instanceof Error
-                ? error.message
-                : "Impossible d'initialiser Stripe pour le moment.",
-            loading: false,
-          });
-        }
-      }
-    }
-
-    void createCheckoutSession();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [items]);
-
-  if (state.loading) {
-    return (
-      <div className="rounded-[24px] border border-[#d8cab2] bg-[#fffaf2] p-5 text-sm text-[#6f6250]">
-        Initialisation du paiement sécurisé...
-      </div>
-    );
-  }
-
-  if (state.error || !state.clientSecret) {
-    return <MockCheckoutForm items={items} />;
-  }
-
-  return (
-    <EmbeddedCheckoutProvider
-      key={state.clientSecret}
-      stripe={stripePromise}
-      options={{ clientSecret: state.clientSecret }}
-    >
-      <EmbeddedCheckout className="overflow-hidden rounded-[28px]" />
-    </EmbeddedCheckoutProvider>
-  );
-}
-
 export default function PaymentEmbeddedCheckout() {
   const { ready, items } = useCart();
   const checkoutItems: CheckoutCartItemInput[] = items.map((item) => ({
     productId: item.productId,
     size: item.size,
     quantity: item.quantity,
-    variantName: item.variantName,
   }));
 
   return (
     <main className="px-4 pb-16 pt-12">
       <div className="mb-5">
-        <AllureLogo className="relative mb-2 h-16 w-32" priority />
+        <p
+          className="text-[15px] tracking-[0.18em] text-[#b79a63]"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          Allure
+        </p>
         <h1 className="text-xl font-semibold text-[#1b1712]">Paiement sécurisé</h1>
         <p className="text-sm text-[#7a6d5b]">
           Finalisez votre commande dans une interface sécurisée, directement intégrée
@@ -265,7 +186,7 @@ export default function PaymentEmbeddedCheckout() {
         ) : !publishableKey ? (
           <MockCheckoutForm items={checkoutItems} />
         ) : (
-          <EmbeddedCheckoutShell items={checkoutItems} />
+          <StripeEmbeddedShell items={checkoutItems} />
         )}
       </section>
     </main>
