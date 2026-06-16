@@ -35,10 +35,18 @@ const defaultState: StylistState = {
   },
 };
 
+function persistStylistState(state: StylistState) {
+  try {
+    window.localStorage.setItem(STYLIST_STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Keep the local UI usable if storage is unavailable.
+  }
+}
+
 export const availableAppointmentDays = [
-  { iso: "2026-05-08", label: "Vendredi 8 mai" },
-  { iso: "2026-05-09", label: "Samedi 9 mai" },
-  { iso: "2026-05-11", label: "Lundi 11 mai" },
+  { iso: "2026-06-19", label: "Vendredi 19 juin" },
+  { iso: "2026-06-20", label: "Samedi 20 juin" },
+  { iso: "2026-06-22", label: "Lundi 22 juin" },
 ] as const;
 
 export const availableAppointmentTimes = ["10:00", "11:30", "14:00", "16:30"] as const;
@@ -96,7 +104,7 @@ export function useStylist() {
     if (!ready) {
       return;
     }
-    window.localStorage.setItem(STYLIST_STORAGE_KEY, JSON.stringify(state));
+    persistStylistState(state);
   }, [ready, state]);
 
   const appointments = useMemo(
@@ -113,6 +121,14 @@ export function useStylist() {
     );
   }
 
+  function updateStylistState(updater: (prev: StylistState) => StylistState) {
+    setState((prev) => {
+      const nextState = updater(prev);
+      persistStylistState(nextState);
+      return nextState;
+    });
+  }
+
   function bookAppointment(
     dateIso: string,
     dateLabel: string,
@@ -124,7 +140,7 @@ export function useStylist() {
       return false;
     }
 
-    setState((prev) => ({
+    updateStylistState((prev) => ({
       ...prev,
       appointments: [
         ...prev.appointments,
@@ -142,14 +158,14 @@ export function useStylist() {
   }
 
   function cancelAppointment(id: string) {
-    setState((prev) => ({
+    updateStylistState((prev) => ({
       ...prev,
       appointments: prev.appointments.filter((appointment) => appointment.id !== id),
     }));
   }
 
   function saveQuestionnaire(questionnaire: StyleQuestionnaire) {
-    setState((prev) => ({
+    updateStylistState((prev) => ({
       ...prev,
       questionnaire,
     }));

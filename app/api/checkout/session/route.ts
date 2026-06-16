@@ -20,6 +20,7 @@ export async function POST(request: Request) {
           cartItems.map((item) => ({
             productId: item.productId,
             size: item.size,
+            variantName: item.variantName,
             quantity: item.quantity,
           }))
         ),

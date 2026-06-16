@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import AllureLogo from "@/components/AllureLogo";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/lib/useAuth";
 import {
@@ -62,14 +62,7 @@ function AuthenticationView({
     <section className="relative z-10 flex min-h-[760px] flex-col">
       <div className="pt-6 text-center">
         <div className="mx-auto mb-3 flex justify-center">
-          <Image
-            src="/allure-logo.png"
-            alt="Logo Allure"
-            width={220}
-            height={160}
-            className="h-auto w-[190px]"
-            priority
-          />
+          <AllureLogo className="relative h-36 w-56" priority />
         </div>
 
         <h1
@@ -170,12 +163,7 @@ function ProfileView({
   return (
     <section className="relative z-10">
       <div className="mb-5">
-        <p
-          className="text-[15px] tracking-[0.18em] text-[#b79a63]"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          Allure
-        </p>
+        <AllureLogo className="relative mb-2 h-16 w-32" priority />
         <h1 className="text-xl font-semibold text-[#1b1712]">Profil</h1>
         <p className="text-sm text-[#7a6d5b]">
           Votre espace personnel, vos reglages et votre securite.

@@ -6,9 +6,18 @@ export type CartItem = {
   productId: number;
   size: string;
   quantity: number;
+  variantName?: string;
 };
 
 const CART_STORAGE_KEY = "allure:cart";
+
+function persistCartItems(items: CartItem[]) {
+  try {
+    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  } catch {
+    // Keep the UI responsive even if storage is unavailable.
+  }
+}
 
 export function useCart() {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -29,6 +38,10 @@ export function useCart() {
             productId: Number(item?.productId),
             size: typeof item?.size === "string" ? item.size : "",
             quantity: Number(item?.quantity),
+            variantName:
+              typeof item?.variantName === "string" && item.variantName.length > 0
+                ? item.variantName
+                : undefined,
           }))
           .filter(
             (item) =>
@@ -50,7 +63,7 @@ export function useCart() {
     if (!ready) {
       return;
     }
-    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+    persistCartItems(items);
   }, [items, ready]);
 
   const itemCount = useMemo(
@@ -58,37 +71,59 @@ export function useCart() {
     [items]
   );
 
-  function addItem(productId: number, size: string) {
+  function updateCartItems(updater: (prev: CartItem[]) => CartItem[]) {
     setItems((prev) => {
+      const nextItems = updater(prev);
+      persistCartItems(nextItems);
+      return nextItems;
+    });
+  }
+
+  function getCartItemKey(
+    item: Pick<CartItem, "productId" | "size" | "variantName">
+  ) {
+    return `${item.productId}:${item.size}:${item.variantName ?? ""}`;
+  }
+
+  function addItem(productId: number, size: string, variantName?: string) {
+    updateCartItems((prev) => {
+      const nextItem = { productId, size, variantName };
       const existing = prev.find(
-        (item) => item.productId === productId && item.size === size
+        (item) => getCartItemKey(item) === getCartItemKey(nextItem)
       );
       if (existing) {
         return prev.map((item) =>
-          item.productId === productId && item.size === size
+          getCartItemKey(item) === getCartItemKey(nextItem)
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
-      return [...prev, { productId, size, quantity: 1 }];
+      return [...prev, { productId, size, variantName, quantity: 1 }];
     });
   }
 
-  function removeItem(productId: number, size: string) {
-    setItems((prev) =>
-      prev.filter((item) => !(item.productId === productId && item.size === size))
+  function removeItem(productId: number, size: string, variantName?: string) {
+    const itemToRemove = { productId, size, variantName };
+    updateCartItems((prev) =>
+      prev.filter((item) => getCartItemKey(item) !== getCartItemKey(itemToRemove))
     );
   }
 
-  function updateQuantity(productId: number, size: string, quantity: number) {
+  function updateQuantity(
+    productId: number,
+    size: string,
+    quantity: number,
+    variantName?: string
+  ) {
     if (quantity <= 0) {
-      removeItem(productId, size);
+      removeItem(productId, size, variantName);
       return;
     }
 
-    setItems((prev) =>
+    const itemToUpdate = { productId, size, variantName };
+    updateCartItems((prev) =>
       prev.map((item) =>
-        item.productId === productId && item.size === size
+        getCartItemKey(item) === getCartItemKey(itemToUpdate)
           ? { ...item, quantity }
           : item
       )
@@ -100,6 +135,7 @@ export function useCart() {
   }
 
   function clearCart() {
+    persistCartItems([]);
     setItems([]);
   }
 

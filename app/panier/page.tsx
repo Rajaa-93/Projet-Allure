@@ -3,26 +3,32 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import AllureLogo from "@/components/AllureLogo";
 import BottomNav from "@/components/BottomNav";
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { getProductById } from "@/lib/products";
+import { getCartProductById, getCartProductPrice } from "@/lib/cartProducts";
 import { useCart } from "@/lib/useCart";
 
 export default function PanierPage() {
   const router = useRouter();
   const [isNavigatingToPayment, startTransition] = useTransition();
   const { ready, items, itemCount, removeItem, updateQuantity } = useCart();
-  const cartLines = items
-    .map((item) => {
-      const product = getProductById(item.productId);
-      if (!product) {
-        return null;
-      }
-      return { ...item, product };
-    })
-    .filter((item) => item !== null);
+  const cartLines = items.flatMap((item) => {
+    const product = getCartProductById(item.productId);
+    if (!product) {
+      return [];
+    }
+
+    return [
+      {
+        ...item,
+        product,
+        unitPrice: getCartProductPrice(product, item.variantName),
+      },
+    ];
+  });
   const total = cartLines.reduce(
-    (sum, line) => sum + line.product.price * line.quantity,
+    (sum, line) => sum + line.unitPrice * line.quantity,
     0
   );
 
@@ -30,12 +36,7 @@ export default function PanierPage() {
     <>
       <main className="px-4 pb-28 pt-14">
         <div className="mb-5">
-          <p
-            className="text-[15px] tracking-[0.18em] text-[#b79a63]"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Allure
-          </p>
+          <AllureLogo className="relative mb-2 h-16 w-32" priority />
           <h1 className="text-xl font-semibold text-[#1b1712]">Panier</h1>
           <p className="text-sm text-[#7a6d5b]">
             {itemCount > 0
@@ -63,7 +64,7 @@ export default function PanierPage() {
             <div className="space-y-3">
               {cartLines.map((line) => (
                 <article
-                  key={`${line.product.id}-${line.size}`}
+                  key={`${line.product.id}-${line.size}-${line.variantName ?? ""}`}
                   className="rounded-[22px] border border-[#d8cab2] bg-[#fbf8f1] p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -71,18 +72,25 @@ export default function PanierPage() {
                       <p className="text-sm font-semibold text-[#7f6a47]">
                         {line.product.brand}
                       </p>
-                      <Link
-                        href={`/catalogue/${line.product.id}`}
-                        className="text-base font-semibold text-[#1d1813]"
-                      >
-                        {line.product.name}
-                      </Link>
+                      {line.product.catalogueHref ? (
+                        <Link
+                          href={line.product.catalogueHref}
+                          className="text-base font-semibold text-[#1d1813]"
+                        >
+                          {line.product.name}
+                        </Link>
+                      ) : (
+                        <p className="text-base font-semibold text-[#1d1813]">
+                          {line.product.name}
+                        </p>
+                      )}
                       <p className="mt-1 text-sm text-[#6f6250]">
                         Taille {line.size}
+                        {line.variantName ? ` · ${line.variantName}` : ""}
                       </p>
                     </div>
                     <p className="text-base font-semibold text-[#1d1813]">
-                      {line.product.price * line.quantity}€
+                      {line.unitPrice * line.quantity}€
                     </p>
                   </div>
 
@@ -94,7 +102,8 @@ export default function PanierPage() {
                           updateQuantity(
                             line.product.id,
                             line.size,
-                            line.quantity - 1
+                            line.quantity - 1,
+                            line.variantName
                           )
                         }
                         className="flex h-9 w-9 items-center justify-center rounded-full border border-[#d8cab2] bg-white text-[#2b241d]"
@@ -111,7 +120,8 @@ export default function PanierPage() {
                           updateQuantity(
                             line.product.id,
                             line.size,
-                            line.quantity + 1
+                            line.quantity + 1,
+                            line.variantName
                           )
                         }
                         className="flex h-9 w-9 items-center justify-center rounded-full border border-[#d8cab2] bg-white text-[#2b241d]"
@@ -123,7 +133,9 @@ export default function PanierPage() {
 
                     <button
                       type="button"
-                      onClick={() => removeItem(line.product.id, line.size)}
+                      onClick={() =>
+                        removeItem(line.product.id, line.size, line.variantName)
+                      }
                       className="inline-flex items-center gap-2 rounded-full border border-[#e2d0c4] px-3 py-2 text-sm text-[#7b4f42]"
                     >
                       <Trash2 size={14} />

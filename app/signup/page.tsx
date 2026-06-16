@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import AllureLogo from "@/components/AllureLogo";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/lib/useAuth";
 import { LockKeyhole, Mail, UserRound } from "lucide-react";
@@ -19,12 +20,7 @@ export default function SignupPage() {
 
         <section className="relative z-10">
           <div className="mb-5">
-            <p
-              className="text-[15px] tracking-[0.18em] text-[#b79a63]"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Allure
-            </p>
+            <AllureLogo className="relative mb-2 h-16 w-32" priority />
             <h1 className="text-xl font-semibold text-[#1b1712]">Inscription</h1>
             <p className="text-sm text-[#7a6d5b]">
               Creez votre compte avec vos informations personnelles.

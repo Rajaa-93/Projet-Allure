@@ -4,6 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 
 const FAVORITES_STORAGE_KEY = "allure:favorites";
 
+function persistFavoriteIds(favoriteIds: number[]) {
+  try {
+    window.localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favoriteIds));
+  } catch {
+    // Favorites should still update visually if browser storage is unavailable.
+  }
+}
+
 export function useFavorites() {
   const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
   const [ready, setReady] = useState(false);
@@ -34,7 +42,7 @@ export function useFavorites() {
     if (!ready) {
       return;
     }
-    window.localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favoriteIds));
+    persistFavoriteIds(favoriteIds);
   }, [favoriteIds, ready]);
 
   const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
@@ -42,9 +50,13 @@ export function useFavorites() {
   function toggleFavorite(productId: number) {
     setFavoriteIds((prev) => {
       if (prev.includes(productId)) {
-        return prev.filter((id) => id !== productId);
+        const nextIds = prev.filter((id) => id !== productId);
+        persistFavoriteIds(nextIds);
+        return nextIds;
       }
-      return [...prev, productId];
+      const nextIds = [...prev, productId];
+      persistFavoriteIds(nextIds);
+      return nextIds;
     });
   }
 

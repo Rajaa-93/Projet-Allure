@@ -1,12 +1,17 @@
 import "server-only";
 
 import type Stripe from "stripe";
-import { getProductById } from "@/lib/products";
+import {
+  getCartProductById,
+  getCartProductPrice,
+  getCartProductVariant,
+} from "@/lib/cartProducts";
 
 export type CheckoutCartItemInput = {
   productId: number;
   size: string;
   quantity: number;
+  variantName?: string;
 };
 
 type NormalizedCheckoutItem = {
@@ -14,6 +19,7 @@ type NormalizedCheckoutItem = {
   productName: string;
   brand: string;
   size: string;
+  variantName?: string;
   quantity: number;
   unitAmount: number;
 };
@@ -29,12 +35,21 @@ function normalizeCartItem(item: unknown): CheckoutCartItemInput | null {
   const productId = Number(candidate.productId);
   const size = typeof candidate.size === "string" ? candidate.size.trim() : "";
   const quantity = Number(candidate.quantity);
+  const variantName =
+    typeof candidate.variantName === "string" &&
+    candidate.variantName.trim().length > 0
+      ? candidate.variantName.trim()
+      : undefined;
 
-  if (!Number.isInteger(productId) || !Number.isInteger(quantity) || size.length === 0) {
+  if (
+    !Number.isInteger(productId) ||
+    !Number.isInteger(quantity) ||
+    size.length === 0
+  ) {
     return null;
   }
 
-  return { productId, size, quantity };
+  return { productId, size, quantity, variantName };
 }
 
 export function validateCheckoutCart(input: unknown) {
@@ -55,16 +70,25 @@ export function validateCheckoutCart(input: unknown) {
       throw new Error("La quantité demandée n'est pas valide.");
     }
 
-    const product = getProductById(item.productId);
+    const product = getCartProductById(item.productId);
     if (!product) {
       throw new Error("Un produit du panier est introuvable.");
     }
 
     if (!product.sizes.includes(item.size)) {
-      throw new Error(`La taille ${item.size} n'est pas disponible pour ${product.name}.`);
+      throw new Error(
+        `La taille ${item.size} n'est pas disponible pour ${product.name}.`
+      );
     }
 
-    const key = `${product.id}:${item.size}`;
+    const variant = getCartProductVariant(product, item.variantName);
+    if (item.variantName && (!variant || !variant.available)) {
+      throw new Error(
+        `La variante ${item.variantName} n'est pas disponible pour ${product.name}.`
+      );
+    }
+
+    const key = `${product.id}:${item.size}:${item.variantName ?? ""}`;
     const existing = merged.get(key);
 
     if (existing) {
@@ -81,8 +105,9 @@ export function validateCheckoutCart(input: unknown) {
       productName: product.name,
       brand: product.brand,
       size: item.size,
+      variantName: item.variantName,
       quantity: item.quantity,
-      unitAmount: Math.round(product.price * 100),
+      unitAmount: Math.round(getCartProductPrice(product, item.variantName) * 100),
     });
   }
 
@@ -99,7 +124,9 @@ export function buildStripeLineItems(
       unit_amount: item.unitAmount,
       product_data: {
         name: item.productName,
-        description: `${item.brand} • Taille ${item.size}`,
+        description: `${item.brand} • Taille ${item.size}${
+          item.variantName ? ` • ${item.variantName}` : ""
+        }`,
       },
     },
   }));

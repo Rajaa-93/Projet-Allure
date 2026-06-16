@@ -23,6 +23,14 @@ const defaultProfile: AuthProfile = {
   premium: false,
 };
 
+function persistAuthState(nextState: AuthState) {
+  try {
+    window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextState));
+  } catch {
+    // Ignore storage failures so auth actions still update the in-memory UI state.
+  }
+}
+
 export function useAuth() {
   const [ready, setReady] = useState(false);
   const [state, setState] = useState<AuthState>({
@@ -69,26 +77,36 @@ export function useAuth() {
     if (!ready) {
       return;
     }
-    window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(state));
+    persistAuthState(state);
   }, [ready, state]);
 
-  function login() {
-    setState((prev) => ({ ...prev, authenticated: true }));
-  }
-
-  function logout() {
-    setState((prev) => ({ ...prev, authenticated: false }));
-  }
-
-  function register(profile: AuthProfile) {
-    setState({
-      authenticated: true,
-      profile,
+  function updateAuthState(updater: (prev: AuthState) => AuthState) {
+    setState((prev) => {
+      const nextState = updater(prev);
+      persistAuthState(nextState);
+      return nextState;
     });
   }
 
+  function login() {
+    updateAuthState((prev) => ({ ...prev, authenticated: true }));
+  }
+
+  function logout() {
+    updateAuthState((prev) => ({ ...prev, authenticated: false }));
+  }
+
+  function register(profile: AuthProfile) {
+    const nextState = {
+      authenticated: true,
+      profile,
+    };
+    persistAuthState(nextState);
+    setState(nextState);
+  }
+
   function activatePremium() {
-    setState((prev) => ({
+    updateAuthState((prev) => ({
       ...prev,
       profile: {
         ...prev.profile,

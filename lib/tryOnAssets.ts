@@ -1,4 +1,4 @@
-import { type Product, type ProductVariant } from "@/lib/products";
+import { type Product, type ProductVariant } from "@/lib/tryOnProducts";
 
 export type ViewName = "Face" | "Profil droit" | "Dos" | "Profil gauche";
 

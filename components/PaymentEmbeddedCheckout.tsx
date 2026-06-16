@@ -4,15 +4,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import AllureLogo from "@/components/AllureLogo";
 import { CreditCard, Lock } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { useCart } from "@/lib/useCart";
-import { getProductById } from "@/lib/products";
+import { getCartProductById, getCartProductPrice } from "@/lib/cartProducts";
 
 type CheckoutCartItemInput = {
   productId: number;
   size: string;
   quantity: number;
+  variantName?: string;
 };
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
@@ -32,8 +34,11 @@ function MockCheckoutForm({
   const router = useRouter();
   const [isSubmitting, startTransition] = useTransition();
   const total = items.reduce((sum, item) => {
-    const product = getProductById(item.productId);
-    return sum + (product ? product.price * item.quantity : 0);
+    const product = getCartProductById(item.productId);
+    return (
+      sum +
+      (product ? getCartProductPrice(product, item.variantName) * item.quantity : 0)
+    );
   }, 0);
 
   return (
@@ -217,17 +222,13 @@ export default function PaymentEmbeddedCheckout() {
     productId: item.productId,
     size: item.size,
     quantity: item.quantity,
+    variantName: item.variantName,
   }));
 
   return (
     <main className="px-4 pb-16 pt-12">
       <div className="mb-5">
-        <p
-          className="text-[15px] tracking-[0.18em] text-[#b79a63]"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          Allure
-        </p>
+        <AllureLogo className="relative mb-2 h-16 w-32" priority />
         <h1 className="text-xl font-semibold text-[#1b1712]">Paiement sécurisé</h1>
         <p className="text-sm text-[#7a6d5b]">
           Finalisez votre commande dans une interface sécurisée, directement intégrée

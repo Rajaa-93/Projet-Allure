@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import AllureLogo from "@/components/AllureLogo";
 import BottomNav from "@/components/BottomNav";
 import { stylists } from "@/lib/stylists";
 import { useAuth } from "@/lib/useAuth";
@@ -119,12 +120,7 @@ export default function StylistePage() {
 
         <section className="relative z-10">
           <div className="mb-5">
-            <p
-              className="text-[15px] tracking-[0.18em] text-[#b79a63]"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Allure
-            </p>
+            <AllureLogo className="relative mb-2 h-16 w-32" priority />
             <h1 className="text-xl font-semibold text-[#1b1712]">
               Abonnement styliste
             </h1>
